@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#8b1e3f" />
+  <title>Acompanhamento 21 — Protocolo</title>
+  <link rel="icon" href="avatar.jpg" />
+  <link rel="manifest" href="manifest.json" />
+  <style>
+    :root {
+      --bg: #f6f1ec; --card: #fff; --ink: #1c1412; --muted: #6b5c57;
+      --brand: #8b1e3f; --brand-dark: #6b1530; --ok: #2f7d4a; --warn: #c45c26;
+      --line: #eadfd8; --radius: 18px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--ink); }
+    .app { max-width: 430px; margin: 0 auto; min-height: 100%; display: flex; flex-direction: column; background: var(--bg); }
+    header.top { background: var(--brand); color: #fff; padding: 14px 16px 12px; display: flex; align-items: center; gap: 10px; }
+    header.top img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(255,255,255,.4); }
+    header.top .who { flex: 1; } header.top .who b { display: block; font-size: 14px; }
+    header.top .who span { font-size: 11px; opacity: .85; }
+    header.top .daypill { background: var(--brand-dark); font-size: 11px; font-weight: 700; padding: 6px 10px; border-radius: 999px; }
+    main { flex: 1; overflow: auto; padding: 14px 14px 96px; }
+    .card { background: var(--card); border-radius: var(--radius); padding: 16px; box-shadow: 0 8px 24px rgba(80,30,20,.06); margin-bottom: 12px; }
+    .alert { border-radius: 14px; padding: 12px 14px; margin-bottom: 12px; font-size: 13px; font-weight: 600; line-height: 1.35; }
+    .alert.warn { background: #fde8d8; color: #7a3410; }
+    .alert.ok { background: #e3f4ea; color: #1e5a32; }
+    .alert.info { background: #f3e6ea; color: var(--brand-dark); }
+    .progress-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+    .bar { height: 8px; background: var(--line); border-radius: 99px; overflow: hidden; }
+    .bar > i { display: block; height: 100%; background: var(--brand); }
+    h2 { font-size: 18px; margin-bottom: 6px; }
+    h3 { font-size: 15px; margin: 14px 0 8px; }
+    p.sub { font-size: 13px; color: var(--muted); margin-bottom: 14px; }
+    .btn { display: block; width: 100%; border: 0; border-radius: 14px; padding: 14px; font-weight: 700; font-size: 15px; cursor: pointer; }
+    .btn-brand { background: var(--brand); color: #fff; }
+    .btn-ok { background: var(--ok); color: #fff; }
+    .btn-ghost { background: #f3ece8; color: var(--ink); margin-top: 8px; }
+    .row { display: flex; gap: 8px; } .row .btn { flex: 1; }
+    input, textarea, select { width: 100%; border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; font-size: 16px; background: #fff; }
+    label { font-size: 12px; font-weight: 700; color: var(--muted); display: block; margin: 10px 0 6px; }
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+    .chip { border: 1px solid var(--line); background: #fff; border-radius: 999px; padding: 8px 12px; font-size: 12px; font-weight: 600; cursor: pointer; }
+    .grid21 { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-top: 10px; }
+    .d { aspect-ratio: 1; border-radius: 10px; display: grid; place-items: center; font-size: 11px; font-weight: 700; background: #f3ece8; color: var(--muted); }
+    .d.done { background: var(--ok); color: #fff; } .d.today { outline: 2px solid var(--brand); background: #fff; color: var(--brand); } .d.future { opacity: .45; }
+    .step { display: flex; gap: 10px; margin: 10px 0; }
+    .num { flex: 0 0 28px; height: 28px; border-radius: 50%; background: var(--brand); color: #fff; display: grid; place-items: center; font-size: 12px; font-weight: 800; }
+    .step p { font-size: 14px; line-height: 1.4; }
+    .ing { font-size: 14px; padding: 8px 0; border-bottom: 1px solid var(--line); }
+    .wa { display: flex; flex-direction: column; min-height: calc(100vh - 58px); margin: -14px -14px 0; }
+    .wa-head { background: #075E54; color: #fff; display: flex; align-items: center; gap: 10px; padding: 8px 12px; }
+    .wa-head img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
+    .wa-head b { display: block; font-size: 16px; font-weight: 600; }
+    .wa-head span { font-size: 12px; opacity: .85; }
+    .wa-thread {
+      flex: 1; padding: 12px 10px 8px; display: flex; flex-direction: column; gap: 6px;
+      background: #e5ddd5 url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h60v60H0z' fill='%23e5ddd5'/%3E%3Cpath d='M10 8h2v2h-2zM28 22h2v2h-2zM44 6h2v2h-2zM6 40h2v2H6zM50 36h2v2h-2z' fill='%23d4ccc4'/%3E%3C/svg%3E");
+      min-height: 340px; overflow: auto;
+    }
+    .bubble { max-width: 78%; padding: 6px 8px 4px 9px; border-radius: 8px; font-size: 14.5px; line-height: 1.35; white-space: pre-wrap; position: relative; box-shadow: 0 1px 0.5px rgba(0,0,0,.13); }
+    .bubble.bot { background: #fff; align-self: flex-start; border-top-left-radius: 0; }
+    .bubble.me { background: #dcf8c6; align-self: flex-end; border-top-right-radius: 0; }
+    .bubble time { display: block; text-align: right; font-size: 11px; color: #667781; margin-top: 2px; }
+    .wa-chips { display: flex; gap: 6px; overflow-x: auto; padding: 8px 10px 0; background: #e5ddd5; }
+    .wa-chips .chip { background: #fff; border: 0; white-space: nowrap; font-size: 12px; box-shadow: 0 1px 1px rgba(0,0,0,.08); }
+    .composer { display: flex; gap: 8px; align-items: flex-end; padding: 6px 8px 10px; background: #f0f0f0; }
+    .composer input { flex: 1; border-radius: 24px; border: 0; padding: 10px 16px; font-size: 15px; background: #fff; }
+    .composer button {
+      width: 46px; height: 46px; border: 0; border-radius: 50%; background: #25D366; color: #fff;
+      font-weight: 700; font-size: 18px; cursor: pointer; flex-shrink: 0;
+    }
+
+    .tg-kb { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 8px 8px 10px; background: #e8e8e8; }
+    .tg-kb button { border: 0; background: #fff; border-radius: 10px; padding: 12px 8px; font-size: 13px; font-weight: 600; cursor: pointer; box-shadow: 0 1px 1px rgba(0,0,0,.1); text-align: center; }
+    .tg-kb button.span { grid-column: 1 / -1; }
+    .tg-kb button.ok { background: #dcf8c6; }
+    nav.tabbar { position: fixed; left: 50%; transform: translateX(-50%); width: 100%; max-width: 430px; bottom: 0; background: #fff; border-top: 1px solid var(--line); display: grid; grid-template-columns: repeat(4, 1fr); padding: 8px 4px calc(8px + env(safe-area-inset-bottom)); }
+    nav.tabbar button { border: 0; background: none; font-size: 11px; font-weight: 700; color: var(--muted); padding: 6px 2px; cursor: pointer; }
+    nav.tabbar button.on { color: var(--brand); }
+    .screen { display: none; } .screen.on { display: block; }
+    .gate { padding: 24px 18px; }
+    .fine { font-size: 11px; color: var(--muted); line-height: 1.45; margin-top: 14px; }
+    .stat { display: flex; justify-content: space-between; font-size: 13px; padding: 8px 0; border-bottom: 1px solid var(--line); }
+    .price { font-size: 28px; font-weight: 800; margin: 8px 0; }
+    .price span { font-size: 14px; font-weight: 600; color: var(--muted); }
+  </style>
+</head>
+<body>
+  <div class="app" id="app"></div>
+  <script>
+    const AVATAR = "avatar.jpg";
+    const KEY = "p21_v4";
+    const PAY_VIP = "https://pay.kursinha.com/c/6a86098a7aa820521ea7444c";
+    const CODIGO_VIP = "VIP21";
+    const load = () => { try { return JSON.parse(localStorage.getItem(KEY)); } catch { return null; } };
+    const save = (s) => localStorage.setItem(KEY, JSON.stringify(s));
+    const todayISO = () => new Date().toISOString().slice(0, 10);
+    const hhmm = () => { const d = new Date(); return `${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`; };
+
+    function dayNumber(start) {
+      const a = new Date(start + "T00:00:00");
+      const b = new Date(todayISO() + "T00:00:00");
+      return Math.floor((b - a) / 86400000) + 1;
+    }
+
+    const RECEITA = {
+      lista: ["2 quiabos médios frescos", "1 copo de água (250 ml)", "Suco de ½ limão", "1 colher de chá de gengibre ralado"],
+      noite: [
+        "Lava bem os quiabos e corta as pontas.",
+        "Faz 3 cortes no comprimento de cada um, sem separar.",
+        "Põe os quiabos num copo com 250 ml de água.",
+        "Deixa de molho 8 horas (de um dia para o outro)."
+      ],
+      manha: [
+        "Tira os quiabos (não reutilizes no dia seguinte).",
+        "Espreme o limão na água do molho.",
+        "Junta o gengibre ralado e mistura.",
+        "Bebe em jejum, antes do café da manhã.",
+        "Se puderes, espera 20–30 min antes de comer."
+      ]
+    };
+
+
+    const NAV = [
+      { id: "home", label: "📋 Menu" },
+      { id: "obrigado", label: "🙏 Obrigado" }
+    ];
+    const TOP = [
+      { id: "preparar", label: "🥤 Como preparar" },
+      { id: "molho", label: "🌙 Molho da noite" },
+      { id: "manha", label: "☀️ Copo da manhã" },
+      { id: "horas", label: "⏰ Que horas bebo" },
+      { id: "esqueci", label: "❌ Esqueci um dia" },
+      { id: "peso", label: "⚖️ Quando me peso" },
+      { id: "sabor", label: "😋 Sabor / enjoo" },
+      { id: "mercado", label: "🛒 Lista do mercado" },
+      { id: "comer", label: "🍽️ Posso comer o quê" },
+      { id: "saude", label: "❤️ Gravidez / saúde" },
+      { id: "dias", label: "📅 Os 21 dias" },
+      { id: "alertas", label: "🔔 Alertas" }
+    ];
+    function kb(extra) {
+      return (extra || []).concat(TOP).concat(NAV);
+    }
+    const NODES = {
+      home: {
+        text: (n) => `Olá, ${n} 😊\n\nSou a Nara, do suporte do Protocolo 21.\nEscolhe o tema em baixo — como num atendimento. Quando terminares, toca em Obrigado.`,
+        buttons: kb()
+      },
+      preparar: {
+        text: () => "O copo tem 2 momentos.\n\nÀ NOITE: 2 quiabos lavados, corta as pontas, 3 cortes no comprimento (sem partir), de molho em 250 ml de água durante 8 horas.\n\nDE MANHÃ: tiras os quiabos, espremes ½ limão, 1 colher de chá de gengibre, bebes em jejum.\n\nQuiabos novos todas as noites. Não adoces.",
+        buttons: kb([{ id: "molho", label: "Ver só o molho" }, { id: "manha", label: "Ver só a manhã" }])
+      },
+      molho: {
+        text: () => "Molho da noite, passo a passo:\n1) Lava 2 quiabos médios e corta as pontas.\n2) Faz 3 cortes no comprimento, sem separar.\n3) Põe num copo com 250 ml de água.\n4) Deixa 8 horas (de um dia para o outro).\n\nNão reutilizes os mesmos quiabos no dia seguinte.",
+        buttons: kb([{ id: "manha", label: "E de manhã?" }])
+      },
+      manha: {
+        text: () => "Copo da manhã:\n1) Tira os quiabos da água.\n2) Espreme ½ limão nessa água.\n3) Junta 1 colher de chá de gengibre ralado.\n4) Bebe em jejum, antes de comer.\n5) Se puderes, espera 20–30 min e só depois o café.",
+        buttons: kb([{ id: "horas", label: "Que horas é melhor?" }])
+      },
+      horas: {
+        text: () => "O copo é de manhã, em jejum, antes do café.\nO molho é na noite anterior.\n\nNo separador Alertas podes marcar as horas (ex.: 06:30 copo e 21:00 molho) para não esqueceres.",
+        buttons: kb()
+      },
+      esqueci: {
+        text: () => "Não faz mal. Não bebas dois copos para compensar.\nMarca o dia como falhado e amanhã voltas ao copo em jejum.\nO que conta é o ritmo dos 21 dias, não um dia isolado.",
+        buttons: kb()
+      },
+      peso: {
+        text: () => "Não precisas de te pesar todos os dias — isso só baralha.\nPesa-te no dia 1, 7, 14 e 21.\nDe manhã, depois da casa de banho, antes de comer. Podes guardar o número no separador Hoje.",
+        buttons: kb()
+      },
+      sabor: {
+        text: () => "O gengibre puxa, é normal.\nNão ponhas açúcar nem mel.\nO limão suaviza. Bebes a água do molho, não o quiabo.",
+        buttons: kb()
+      },
+      mercado: {
+        text: () => "Lista:\n• 2 quiabos médios por dia (verdes e firmes)\n• Limão\n• Gengibre\n• Água\n\nNo mercado, evita quiabos moles ou escuros.",
+        buttons: kb()
+      },
+      comer: {
+        text: () => "Daqui não montamos ementa nem dieta.\nMantém o copo em jejum. O resto da comida, com bom senso, como já comes.\nSe tens uma dieta prescrita por um profissional, segue essa.",
+        buttons: kb()
+      },
+      saude: {
+        text: () => "Nisso o suporte não substitui um profissional de saúde.\nSe estás grávida, a amamentar, a tomar medicação ou tens alguma condição, fala com um profissional antes de seguir o copo.\nSe sentires mal-estar, pára e procura ajuda médica.",
+        buttons: kb()
+      },
+      dias: {
+        text: () => "São 21 dias. Um copo por manhã. Molho novo todas as noites.\nNo separador Hoje marcas o copo e o molho. No calendário vês o teu ritmo.",
+        buttons: kb()
+      },
+      alertas: {
+        text: () => "Abre o separador Alertas (em baixo).\nMarca a hora do copo (manhã) e a do molho (noite) e liga as notificações neste telemóvel.\nNo primeiro dia vale a pena adicionar a página ao ecrã inicial.",
+        buttons: kb()
+      },
+      obrigado: {
+        text: (n) => `De nada, ${n}. Qualquer coisa, escolhe outra opção ou volta amanhã.\nBom copo 💚`,
+        buttons: [{ id: "home", label: "📋 Menu" }]
+      }
+    };
+
+    let state = Object.assign({
+      name: "", start: "", checks: {}, soaks: {}, weights: {}, chat: [],
+      morning: "06:30", night: "21:00", notif: false, plan: "trial21", vip: false, typing: false, kb: "home", lastNotif: ""
+    }, load() || {});
+
+    function persist() { save(state); }
+
+    (function applyPaidAccess() {
+      const q = new URLSearchParams(location.search);
+      const a = (q.get("acesso") || q.get("vip") || "").trim().toUpperCase();
+      if (a === CODIGO_VIP || a === "1" || a === "VIP") {
+        state.vip = true;
+        persist();
+        if (location.search) history.replaceState({}, "", location.pathname);
+      }
+    })();
+
+    const screens = { home: true, receita: false, chat: false, plano: false };
+    let replyBusy = false;
+
+    function maybeNotify(id, title, body) {
+      const stamp = todayISO() + "|" + id;
+      if (state.lastNotif === stamp) return;
+      state.lastNotif = stamp; persist();
+      if (state.notif && "Notification" in window && Notification.permission === "granted") {
+        try { new Notification(title, { body, icon: AVATAR }); } catch (e) {}
+      }
+    }
+
+    function tickAlerts() {
+      if (!state.start) return;
+      const now = hhmm();
+      const drank = !!state.checks[todayISO()];
+      const soaked = !!state.soaks[todayISO()];
+      if (now >= state.morning && now < "11:00" && !drank)
+        maybeNotify("am", "Copo da manhã", "Em jejum, antes do café. Marca na app quando beberes.");
+      if (now >= state.night && !soaked)
+        maybeNotify("pm", "Molho da noite", "2 quiabos de molho 8 horas. Sem isto, amanhã não há copo.");
+    }
+    setInterval(tickAlerts, 30000);
+
+    function render() {
+      const root = document.getElementById("app");
+      if (!state.name || !state.start) {
+        root.innerHTML = `
+          <div class="gate">
+            <img src="${AVATAR}" alt="" style="width:72px;height:72px;border-radius:50%;object-fit:cover">
+            <h2 style="margin:14px 0 6px">Acompanhamento 21</h2>
+            <p class="sub">Receita do copo, calendário de 21 dias e alertas para não esqueceres o molho à noite e o copo de manhã.</p>
+            <label>Primeiro nome</label>
+            <input id="nm" placeholder="Ex.: Maria" maxlength="24" />
+            <button class="btn btn-brand" style="margin-top:16px" id="go">Começar os 21 dias</button>
+            <p class="fine">Não é consulta médica. Não substitui um profissional de saúde. O produto não é medicamento.</p>
+          </div>`;
+        document.getElementById("go").onclick = () => {
+          const n = (document.getElementById("nm").value || "").trim();
+          if (n.length < 2) return alert("Escreve o teu nome.");
+          state.name = n.split(" ")[0];
+          state.start = todayISO();
+          state.kb = "home";
+          state.chat = [{ who: "bot", at: hhmm(), text: NODES.home.text(state.name) }];
+          persist(); render();
+        };
+        return;
+      }
+
+      const rawDay = dayNumber(state.start);
+      const day = Math.min(21, Math.max(1, rawDay));
+      const expired = rawDay > 21;
+      const doneCount = Object.values(state.checks).filter(Boolean).length;
+      const pct = Math.round((doneCount / 21) * 100);
+      const drank = !!state.checks[todayISO()];
+      const soaked = !!state.soaks[todayISO()];
+      const now = hhmm();
+      let banner = "";
+      if (expired) banner = `<div class="alert warn">Os 21 dias deste ciclo acabaram. Podes recomeçar o calendário quando quiseres. O suporte VIP cobre o período da compra.</div>`;
+      else if (!drank && now >= state.morning && now < "12:00") banner = `<div class="alert warn">Alerta da manhã: ainda não marcaste o copo em jejum.</div>`;
+      else if (!soaked && now >= "18:00") banner = `<div class="alert warn">Alerta da noite: prepara o molho de 8 horas. Sem molho, amanhã não há copo.</div>`;
+      else if (drank) banner = `<div class="alert ok">Copo de hoje feito. À noite não te esqueças do molho.</div>`;
+
+      root.innerHTML = `
+        ${screens.chat ? "" : `<header class="top">
+          <img src="${AVATAR}" alt="">
+          <div class="who"><b>Nara · Protocolo 21</b><span>Dia ${day} de 21</span></div>
+          <div class="daypill">${expired ? "Fim" : "Dia " + day + "/21"}</div>
+        </header>`}
+        <main>
+          ${screens.chat ? "" : banner}
+          <section class="screen ${screens.home ? "on" : ""}">
+            <div class="card">
+              <div class="progress-label"><span>Olá, ${state.name}</span><span>${doneCount}/21 copos</span></div>
+              <div class="bar"><i style="width:${Math.min(100,pct)}%"></i></div>
+              <h2 style="margin-top:14px">Hoje</h2>
+              <p class="sub">Dois gestos: molho à noite, copo de manhã.</p>
+              <button class="btn ${drank ? "btn-ok" : "btn-brand"}" id="drink">${drank ? "Copo bebido ✓" : "Marcar: já bebi o copo"}</button>
+              <button class="btn ${soaked ? "btn-ok" : "btn-ghost"}" id="soak">${soaked ? "Molho de hoje preparado ✓" : "Marcar: já pus o molho (noite)"}</button>
+              <label>Peso (opcional) — dias 1, 7, 14 e 21</label>
+              <div class="row">
+                <input id="kg" type="number" inputmode="decimal" step="0.1" placeholder="kg" value="${state.weights[todayISO()] || ""}" />
+                <button class="btn btn-ghost" id="savekg" style="margin-top:0;max-width:120px">Guardar</button>
+              </div>
+            </div>
+            <div class="card"><b>Calendário 21 dias</b><div class="grid21" id="cal"></div></div>
+          </section>
+
+          <section class="screen ${screens.receita ? "on" : ""}">
+            <div class="card">
+              <h2>Receita do copo</h2>
+              <p class="sub">Vitamina de quiabo do protocolo. Um copo por manhã, 21 dias.</p>
+              <h3>Lista do mercado</h3>
+              ${RECEITA.lista.map(i => `<div class="ing">• ${i}</div>`).join("")}
+              <h3>À noite (8 horas de molho)</h3>
+              ${RECEITA.noite.map((s,i) => `<div class="step"><div class="num">${i+1}</div><p>${s}</p></div>`).join("")}
+              <h3>De manhã (em jejum)</h3>
+              ${RECEITA.manha.map((s,i) => `<div class="step"><div class="num">${i+1}</div><p>${s}</p></div>`).join("")}
+              <p class="fine">Não reutilizes os quiabos. Não adoces. Não é medicamento. Se estás grávida, a amamentar ou com medicação, consulta um profissional de saúde.</p>
+            </div>
+          </section>
+
+          <section class="screen ${screens.chat ? "on" : ""}">
+            <div class="wa">
+              <div class="wa-head">
+                <img src="${AVATAR}" alt="">
+                <div style="flex:1">
+                  <b>Nara</b>
+                  <span>${state.typing ? "a escrever..." : "online"}</span>
+                </div>
+              </div>
+              <div class="wa-thread" id="thread"></div>
+              <div class="tg-kb" id="kb"></div>
+            </div>
+          </section>
+
+          <section class="screen ${screens.plano ? "on" : ""}">
+            <div class="card">
+              <h2>Não te esqueças</h2>
+              <p class="sub">Agenda aqui o aviso do copo (manhã, em jejum) e do molho (noite). Entra neste separador no primeiro dia e liga as notificações.</p>
+              <label>Hora do copo (manhã)</label>
+              <input type="time" id="tm" value="${state.morning}" />
+              <label>Hora do molho (noite)</label>
+              <input type="time" id="tn" value="${state.night}" />
+              <button class="btn btn-brand" style="margin-top:12px" id="notif">${state.notif ? "Alertas ligados ✓" : "Ligar alertas neste telemóvel"}</button>
+              <p class="fine">Funciona melhor se adicionares esta página ao ecrã inicial do telemóvel. Os alertas deste ecrã são grátis — o chat de suporte é a oferta VIP.</p>
+            </div>
+            <div class="card">
+              <h3>O teu ritmo</h3>
+              <div class="stat"><span>Início</span><b>${state.start}</b></div>
+              <div class="stat"><span>Copos</span><b>${doneCount}</b></div>
+              <div class="stat"><span>Molhos</span><b>${Object.values(state.soaks).filter(Boolean).length}</b></div>
+            </div>
+          </section>
+        </main>
+        <nav class="tabbar">
+          <button data-tab="home" class="${screens.home ? "on" : ""}">Hoje</button>
+          <button data-tab="receita" class="${screens.receita ? "on" : ""}">Receita</button>
+          <button data-tab="chat" class="${screens.chat ? "on" : ""}">Suporte</button>
+          <button data-tab="plano" class="${screens.plano ? "on" : ""}">Alertas</button>
+        </nav>
+      `;
+
+      const cal = document.getElementById("cal");
+      if (cal) {
+        for (let i = 1; i <= 21; i++) {
+          const dt = new Date(state.start + "T00:00:00");
+          dt.setDate(dt.getDate() + i - 1);
+          const iso = dt.toISOString().slice(0, 10);
+          const el = document.createElement("div");
+          el.className = "d" + (state.checks[iso] ? " done" : "") + (iso === todayISO() ? " today" : "") + (i > day && !expired ? " future" : "");
+          el.textContent = i;
+          cal.appendChild(el);
+        }
+      }
+
+      const drink = document.getElementById("drink");
+      if (drink) drink.onclick = () => { state.checks[todayISO()] = !state.checks[todayISO()]; persist(); render(); };
+      const soak = document.getElementById("soak");
+      if (soak) soak.onclick = () => { state.soaks[todayISO()] = !state.soaks[todayISO()]; persist(); render(); };
+      const savekg = document.getElementById("savekg");
+      if (savekg) savekg.onclick = () => {
+        const v = document.getElementById("kg").value;
+        if (!v) delete state.weights[todayISO()]; else state.weights[todayISO()] = v;
+        persist(); savekg.textContent = "Ok";
+      };
+
+      document.querySelectorAll("[data-tab]").forEach(b => b.onclick = () => {
+        Object.keys(screens).forEach(k => screens[k] = false);
+        screens[b.dataset.tab] = true; render();
+      });
+
+      const thread = document.getElementById("thread");
+      if (thread) {
+        thread.innerHTML = state.chat.map(m => `<div class="bubble ${m.who}">${escapeHtml(m.text)}<time>${escapeHtml(m.at || "")}</time></div>`).join("");
+        thread.scrollTop = 99999;
+      }
+      const kb = document.getElementById("kb");
+      if (kb) {
+        const node = NODES[state.kb || "home"] || NODES.home;
+        kb.innerHTML = node.buttons.map(b => {
+          const cls = b.id === "obrigado" ? "ok" : (b.id === "home" ? "span" : "");
+          return `<button class="${cls}" data-go="${b.id}">${b.label}</button>`;
+        }).join("");
+        kb.querySelectorAll("[data-go]").forEach(btn => {
+          btn.onclick = () => {
+            const id = btn.dataset.go;
+            const at = hhmm();
+            state.chat.push({ who: "me", text: btn.textContent.trim(), at });
+            const nxt = NODES[id] || NODES.home;
+            state.kb = id === "obrigado" ? "obrigado" : (id === "home" ? "home" : id);
+            const txt = typeof nxt.text === "function" ? nxt.text(state.name) : nxt.text;
+            state.chat.push({ who: "bot", text: txt, at });
+            persist(); render();
+          };
+        });
+      }
+
+      const notif = document.getElementById("notif");
+      if (notif) notif.onclick = async () => {
+        state.morning = document.getElementById("tm").value || "06:30";
+        state.night = document.getElementById("tn").value || "21:00";
+        if (!("Notification" in window)) { alert("Este browser não dá notificações. Os alertas dentro da app continuam."); state.notif = true; persist(); render(); return; }
+        const p = await Notification.requestPermission();
+        state.notif = p === "granted";
+        persist(); render();
+        if (state.notif) new Notification("Alertas ligados", { body: `Copo ${state.morning} · Molho ${state.night}`, icon: AVATAR });
+      };
+      const tm = document.getElementById("tm");
+      if (tm) tm.onchange = () => { state.morning = tm.value; persist(); };
+      const tn = document.getElementById("tn");
+      if (tn) tn.onchange = () => { state.night = tn.value; persist(); };
+
+
+    }
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;" }[c]));
+    }
+    render();
+    tickAlerts();
+  </script>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a2e603c9e9021b54',t:'MTc4NzI3NzMxOA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
